@@ -16,7 +16,7 @@ type Solicitacao = {
   icon: string;
   endereco: string;
   data: string;
-  status: 'atendimento' | 'resolvida' | 'cancelada';
+  status: StatusFiltro;
 };
 
 export default function MinhasSolicitacoes() {
@@ -28,7 +28,7 @@ export default function MinhasSolicitacoes() {
       tipo: 'Iluminação pública',
       icon: '💡',
       endereco: 'Jardim Nova Era',
-      data: 'Atualizado em 22/04/2024',
+      data: '22/04/2024',
       status: 'atendimento',
     },
     {
@@ -36,7 +36,7 @@ export default function MinhasSolicitacoes() {
       tipo: 'Coleta de lixo',
       icon: '🗑️',
       endereco: 'Rua das Acácias',
-      data: 'Resolvido em 21/04/2024',
+      data: '21/04/2024',
       status: 'resolvida',
     },
     {
@@ -44,7 +44,7 @@ export default function MinhasSolicitacoes() {
       tipo: 'Buraco na via',
       icon: '🕳️',
       endereco: 'Av. das Árvores',
-      data: 'Cancelado em 18/04/2024',
+      data: '18/04/2024',
       status: 'cancelada',
     },
   ];
@@ -58,9 +58,9 @@ export default function MinhasSolicitacoes() {
     router.push({
       pathname: '/(tabs)/detalhe-solicitacao',
       params: {
-        status: item.status,
         tipo: item.tipo,
         endereco: item.endereco,
+        status: item.status,
         data: item.data,
       },
     });
@@ -81,11 +81,11 @@ export default function MinhasSolicitacoes() {
     );
   }
 
-  function renderStatus(status: string) {
+  function renderStatusBadge(status: StatusFiltro) {
     if (status === 'atendimento') {
       return (
-        <View style={[styles.status, styles.statusAtendimento]}>
-          <Text style={[styles.statusText, styles.statusAtendimentoText]}>
+        <View style={[styles.badge, styles.badgeAtendimento]}>
+          <Text style={[styles.badgeText, styles.textAtendimento]}>
             Em atendimento
           </Text>
         </View>
@@ -94,8 +94,8 @@ export default function MinhasSolicitacoes() {
 
     if (status === 'resolvida') {
       return (
-        <View style={[styles.status, styles.statusResolvida]}>
-          <Text style={[styles.statusText, styles.statusResolvidaText]}>
+        <View style={[styles.badge, styles.badgeResolvida]}>
+          <Text style={[styles.badgeText, styles.textResolvida]}>
             Resolvida
           </Text>
         </View>
@@ -103,16 +103,24 @@ export default function MinhasSolicitacoes() {
     }
 
     return (
-      <View style={[styles.status, styles.statusCancelada]}>
-        <Text style={[styles.statusText, styles.statusCanceladaText]}>
+      <View style={[styles.badge, styles.badgeCancelada]}>
+        <Text style={[styles.badgeText, styles.textCancelada]}>
           Cancelada
         </Text>
       </View>
     );
   }
 
+  function renderData(status: StatusFiltro, data: string) {
+    if (status === 'atendimento') return `Atualizado em ${data}`;
+    if (status === 'resolvida') return `Resolvido em ${data}`;
+    return `Cancelado em ${data}`;
+  }
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.title}>Minhas solicitações</Text>
         <Text style={styles.subtitle}>
@@ -120,6 +128,7 @@ export default function MinhasSolicitacoes() {
         </Text>
       </View>
 
+      {/* FILTROS */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {renderFiltro('Todas', 'todas')}
         {renderFiltro('Em atendimento', 'atendimento')}
@@ -127,47 +136,58 @@ export default function MinhasSolicitacoes() {
         {renderFiltro('Canceladas', 'cancelada')}
       </ScrollView>
 
+      {/* LISTA */}
       {listaFiltrada.map(item => (
         <TouchableOpacity
           key={item.id}
           style={styles.card}
           onPress={() => abrirDetalhe(item)}
         >
-          <View style={styles.cardHeader}>
-            <View style={styles.tipoContainer}>
+          <View style={styles.cardTop}>
+            <View style={styles.iconContainer}>
               <Text style={styles.icon}>{item.icon}</Text>
-              <Text style={styles.tipo}>{item.tipo}</Text>
             </View>
-            {renderStatus(item.status)}
+
+            <View style={{ flex: 1 }}>
+              <Text style={styles.tipo}>{item.tipo}</Text>
+              <Text style={styles.endereco}>{item.endereco}</Text>
+            </View>
+
+            {renderStatusBadge(item.status)}
           </View>
 
-          <Text style={styles.endereco}>{item.endereco}</Text>
-          <Text style={styles.data}>{item.data}</Text>
+          <Text style={styles.data}>
+            {renderData(item.status, item.data)}
+          </Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F4F6F8',
     paddingHorizontal: 20,
   },
+
   header: {
     marginTop: 20,
-    marginBottom: 14,
+    marginBottom: 16,
   },
+
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: '#111827',
   },
+
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#6B7280',
+    marginTop: 4,
   },
+
   filterButton: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -175,64 +195,101 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     marginRight: 8,
   },
+
   filterButtonAtivo: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#16A34A',
   },
+
   filterText: {
     fontSize: 13,
     fontWeight: '600',
     color: '#374151',
   },
+
   filterTextAtivo: {
     color: '#FFFFFF',
   },
+
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
     marginTop: 14,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     elevation: 3,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  tipoContainer: {
+
+  cardTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
+
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+
   icon: {
     fontSize: 18,
   },
+
   tipo: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
+    color: '#111827',
   },
+
   endereco: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#6B7280',
-    marginTop: 6,
+    marginTop: 2,
   },
+
   data: {
     fontSize: 12,
     color: '#9CA3AF',
-    marginTop: 6,
+    marginTop: 10,
   },
-  status: {
+
+  badge: {
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 999,
   },
-  statusText: {
-    fontSize: 12,
+
+  badgeText: {
+    fontSize: 11,
     fontWeight: '700',
   },
-  statusAtendimento: { backgroundColor: '#FEF3C7' },
-  statusAtendimentoText: { color: '#92400E' },
-  statusResolvida: { backgroundColor: '#DCFCE7' },
-  statusResolvidaText: { color: '#166534' },
-  statusCancelada: { backgroundColor: '#FEE2E2' },
-  statusCanceladaText: { color: '#991B1B' },
+
+  badgeAtendimento: {
+    backgroundColor: '#FEF3C7',
+  },
+
+  textAtendimento: {
+    color: '#92400E',
+  },
+
+  badgeResolvida: {
+    backgroundColor: '#DCFCE7',
+  },
+
+  textResolvida: {
+    color: '#166534',
+  },
+
+  badgeCancelada: {
+    backgroundColor: '#FEE2E2',
+  },
+
+  textCancelada: {
+    color: '#991B1B',
+  },
 });

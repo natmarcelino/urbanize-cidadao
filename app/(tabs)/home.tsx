@@ -6,149 +6,231 @@ import {
   ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
+import MapView, { Marker } from 'react-native-maps';
+
+type Status = 'atendimento' | 'resolvida' | 'cancelada' | 'aberta';
+
+type Solicitacao = {
+  id: number;
+  tipo: string;
+  endereco: string;
+  status: Status;
+  data: string;
+  latitude: number;
+  longitude: number;
+};
 
 export default function Home() {
+
+  const solicitacoes: Solicitacao[] = [
+    {
+      id: 1,
+      tipo: 'Iluminação pública',
+      endereco: 'Jardim Nova Era',
+      status: 'atendimento',
+      data: '22/04/2024',
+      latitude: -16.6869,
+      longitude: -49.2648,
+    },
+    {
+      id: 2,
+      tipo: 'Coleta de lixo',
+      endereco: 'Rua das Acácias',
+      status: 'resolvida',
+      data: '21/04/2024',
+      latitude: -16.69,
+      longitude: -49.27,
+    },
+    {
+      id: 3,
+      tipo: 'Buraco na via',
+      endereco: 'Av. das Árvores',
+      status: 'cancelada',
+      data: '18/04/2024',
+      latitude: -16.68,
+      longitude: -49.26,
+    },
+    {
+      id: 4,
+      tipo: 'Lote vago',
+      endereco: 'Setor Central',
+      status: 'aberta',
+      data: '24/04/2024',
+      latitude: -16.67,
+      longitude: -49.25,
+    },
+  ];
+
+  const abertas = solicitacoes.filter(s => s.status === 'aberta').length;
+  const atendimento = solicitacoes.filter(s => s.status === 'atendimento').length;
+  const resolvidas = solicitacoes.filter(s => s.status === 'resolvida').length;
+  const canceladas = solicitacoes.filter(s => s.status === 'cancelada').length;
+
+  const ultimaAtualizacao = solicitacoes[0];
+
+  function getPinColor(status: Status) {
+    switch (status) {
+      case 'resolvida':
+        return 'green';
+      case 'cancelada':
+        return 'red';
+      case 'atendimento':
+        return 'orange';
+      default:
+        return '#2563EB';
+    }
+  }
+
   return (
-    <ScrollView style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.appName}>Urbanize</Text>
-          <Text style={styles.greeting}>Olá, Nathalia</Text>
-          <Text style={styles.subtitle}>
-            Veja o resumo das suas solicitações
-          </Text>
-        </View>
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
 
-        <TouchableOpacity style={styles.notification}>
-          <Text style={styles.notificationIcon}>🔔</Text>
-        </TouchableOpacity>
-      </View>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.logo}>Urbanize</Text>
+            <Text style={styles.greeting}>Olá, Nathalia 👋</Text>
+            <Text style={styles.subtitle}>
+              Veja o resumo das suas solicitações
+            </Text>
+          </View>
 
-      {/* RESUMO */}
-      <View style={styles.summaryGrid}>
-        <ResumoCard
-          title="Abertas"
-          value="2"
-          color="#DCFCE7"
-          textColor="#166534"
-          onPress={() =>
-            router.push({
-              pathname: '/(tabs)/minhas-solicitacoes',
-              params: { status: 'aberta' },
-            })
-          }
-        />
-
-        <ResumoCard
-          title="Em atendimento"
-          value="1"
-          color="#FEF3C7"
-          textColor="#92400E"
-          onPress={() =>
-            router.push({
-              pathname: '/(tabs)/minhas-solicitacoes',
-              params: { status: 'em_atendimento' },
-            })
-          }
-        />
-
-        <ResumoCard
-          title="Resolvidas"
-          value="8"
-          color="#DBEAFE"
-          textColor="#1E40AF"
-          onPress={() =>
-            router.push({
-              pathname: '/(tabs)/minhas-solicitacoes',
-              params: { status: 'resolvida' },
-            })
-          }
-        />
-
-        <ResumoCard
-          title="Canceladas"
-          value="1"
-          color="#FEE2E2"
-          textColor="#991B1B"
-          onPress={() =>
-            router.push({
-              pathname: '/(tabs)/minhas-solicitacoes',
-              params: { status: 'cancelada' },
-            })
-          }
-        />
-      </View>
-
-      {/* MAPA (PLACEHOLDER) */}
-      <View style={styles.mapCard}>
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.mapText}>🗺️ Mapa das solicitações</Text>
-        </View>
-
-        <TouchableOpacity style={styles.mapButton}>
-          <Text style={styles.mapButtonText}>Ver mapa completo</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* ÚLTIMAS ATUALIZAÇÕES */}
-      <View style={styles.updates}>
-        <View style={styles.updatesHeader}>
-          <Text style={styles.sectionTitle}>Últimas atualizações</Text>
-          <TouchableOpacity
-            onPress={() => router.push('/(tabs)/minhas-solicitacoes')}
-          >
-            <Text style={styles.seeMore}>Ver todas</Text>
+          <TouchableOpacity style={styles.notification}>
+            <Text style={{ fontSize: 18 }}>🔔</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.updateItem}>
-          <Text style={styles.updateIcon}>💡</Text>
+        {/* MÉTRICAS CLICÁVEIS */}
+        <View style={styles.grid}>
+          <MetricCard
+            title="Abertas"
+            value={abertas}
+            color="#16A34A"
+            onPress={() => router.push('/minhas-solicitacoes')}
+          />
+          <MetricCard
+            title="Em atendimento"
+            value={atendimento}
+            color="#D97706"
+            onPress={() => router.push('/minhas-solicitacoes')}
+          />
+          <MetricCard
+            title="Resolvidas"
+            value={resolvidas}
+            color="#2563EB"
+            onPress={() => router.push('/minhas-solicitacoes')}
+          />
+          <MetricCard
+            title="Canceladas"
+            value={canceladas}
+            color="#DC2626"
+            onPress={() => router.push('/minhas-solicitacoes')}
+          />
+        </View>
 
-          <View style={{ flex: 1 }}>
-            <Text style={styles.updateTitle}>
-              Iluminação
-              <Text style={styles.updateSubtitle}> • Jardim Nova Era</Text>
+        {/* MAPA */}
+        <View style={styles.mapCard}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: -16.6869,
+              longitude: -49.2648,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            }}
+          >
+            {solicitacoes.map(item => (
+              <Marker
+                key={item.id}
+                coordinate={{
+                  latitude: item.latitude,
+                  longitude: item.longitude,
+                }}
+                title={item.tipo}
+                description={item.endereco}
+                pinColor={getPinColor(item.status)}
+              />
+            ))}
+          </MapView>
+
+          <TouchableOpacity
+            style={styles.mapButton}
+            onPress={() => router.push('/explore')}
+          >
+            <Text style={styles.mapButtonText}>
+              Ver mapa completo
             </Text>
-            <Text style={styles.updateStatus}>Em atendimento</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* BOTÃO PRINCIPAL DE ACESSO */}
+        <TouchableOpacity
+          style={styles.minhasButton}
+          onPress={() => router.push('/minhas-solicitacoes')}
+        >
+          <Text style={styles.minhasButtonText}>
+            📋 Ver minhas solicitações
+          </Text>
+        </TouchableOpacity>
+
+        {/* ÚLTIMA ATUALIZAÇÃO */}
+        <View style={styles.updatesCard}>
+          <View style={styles.updateHeader}>
+            <Text style={styles.sectionTitle}>Última atualização</Text>
+            <TouchableOpacity
+              onPress={() => router.push('/minhas-solicitacoes')}
+            >
+              <Text style={styles.link}>Ver todas</Text>
+            </TouchableOpacity>
           </View>
 
-          <Text style={styles.updateDate}>Hoje, 09:15</Text>
+          <TouchableOpacity
+            style={styles.updateItem}
+            onPress={() =>
+              router.push('/detalhe-solicitacao')
+            }
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.updateTitle}>
+                {ultimaAtualizacao.tipo}
+              </Text>
+              <Text style={styles.updateSubtitle}>
+                {ultimaAtualizacao.endereco}
+              </Text>
+            </View>
+
+            <Text style={styles.updateDate}>
+              {ultimaAtualizacao.data}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+
+      </ScrollView>
+    </View>
   );
 }
 
-/* CARD DE RESUMO */
-function ResumoCard({
+function MetricCard({
   title,
   value,
   color,
-  textColor,
   onPress,
 }: {
   title: string;
-  value: string;
+  value: number;
   color: string;
-  textColor: string;
   onPress: () => void;
 }) {
   return (
-    <TouchableOpacity
-      style={[styles.summaryCard, { backgroundColor: color }]}
-      onPress={onPress}
-      activeOpacity={0.85}
-    >
-      <Text style={[styles.summaryValue, { color: textColor }]}>
+    <TouchableOpacity style={styles.metricCard} onPress={onPress}>
+      <Text style={[styles.metricValue, { color }]}>
         {value}
       </Text>
-      <Text style={styles.summaryTitle}>{title}</Text>
+      <Text style={styles.metricTitle}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
-/* STYLES */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -156,15 +238,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
-  /* HEADER */
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    alignItems: 'center',
+    marginBottom: 24,
   },
 
-  appName: {
+  logo: {
     fontSize: 18,
     fontWeight: '800',
     color: '#16A34A',
@@ -174,6 +254,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: '#111827',
+    marginTop: 4,
   },
 
   subtitle: {
@@ -183,70 +264,60 @@ const styles = StyleSheet.create({
   },
 
   notification: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 3,
+    elevation: 4,
   },
 
-  notificationIcon: {
-    fontSize: 18,
-  },
-
-  /* RESUMO */
-  summaryGrid: {
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
     marginBottom: 20,
   },
 
-  summaryCard: {
+  metricCard: {
     width: '48%',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    elevation: 4,
   },
 
-  summaryValue: {
-    fontSize: 26,
+  metricValue: {
+    fontSize: 28,
     fontWeight: '800',
   },
 
-  summaryTitle: {
+  metricTitle: {
     fontSize: 14,
-    color: '#374151',
-    marginTop: 2,
-    fontWeight: '600',
+    color: '#6B7280',
+    marginTop: 4,
   },
 
-  /* MAPA */
   mapCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 16,
+    elevation: 4,
     marginBottom: 20,
-    elevation: 3,
+    overflow: 'hidden',
   },
 
-  mapPlaceholder: {
-    height: 120,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+  map: {
+    width: '100%',
+    height: 180,
+    borderRadius: 16,
     marginBottom: 12,
   },
 
-  mapText: {
-    color: '#6B7280',
-    fontWeight: '600',
-  },
-
   mapButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#16A34A',
     paddingVertical: 12,
     borderRadius: 999,
     alignItems: 'center',
@@ -257,16 +328,29 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  /* ATUALIZAÇÕES */
-  updates: {
-    backgroundColor: '#FFFFFF',
+  minhasButton: {
+    backgroundColor: '#111827',
+    paddingVertical: 14,
     borderRadius: 18,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  minhasButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+
+  updatesCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 16,
-    elevation: 3,
+    elevation: 4,
     marginBottom: 30,
   },
 
-  updatesHeader: {
+  updateHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
@@ -278,8 +362,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
 
-  seeMore: {
-    fontSize: 14,
+  link: {
     color: '#2563EB',
     fontWeight: '600',
   },
@@ -287,33 +370,22 @@ const styles = StyleSheet.create({
   updateItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-  },
-
-  updateIcon: {
-    fontSize: 20,
   },
 
   updateTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#111827',
   },
 
   updateSubtitle: {
-    fontWeight: '400',
+    fontSize: 13,
     color: '#6B7280',
-  },
-
-  updateStatus: {
-    fontSize: 12,
-    color: '#92400E',
     marginTop: 2,
-    fontWeight: '600',
   },
 
   updateDate: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#9CA3AF',
   },
 });
