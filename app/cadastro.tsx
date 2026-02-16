@@ -87,6 +87,38 @@ export default function Cadastro() {
     setErro('');
     alert('Cadastro validado com sucesso!');
     // aqui depois entra o envio para o backend
+
+    fetch("http://192.168.1.7:3000/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: nome,
+        email: email,
+        cpf: cpf,
+        password: senha,
+        address: {
+          cep: cep,
+          street: rua,
+          number: numero,
+          city: cidade,
+          state: estado,
+          quadra: quadra,
+          lote: lote
+        }
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Sucesso:', data);
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+    });
+
+    router.back()
+
   }
 
   return (
@@ -114,12 +146,14 @@ export default function Cadastro() {
           placeholder="Nome completo"
           style={styles.input}
           value={nome}
+          placeholderTextColor={"#d3d3d3"}
           onChangeText={setNome}
         />
 
         <TextInput
           placeholder="CPF"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           keyboardType="numeric"
           value={cpf}
           onChangeText={setCpf}
@@ -128,6 +162,7 @@ export default function Cadastro() {
         <TextInput
           placeholder="E-mail"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
@@ -137,6 +172,7 @@ export default function Cadastro() {
         <TextInput
           placeholder="Senha"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           secureTextEntry
           value={senha}
           onChangeText={setSenha}
@@ -145,6 +181,7 @@ export default function Cadastro() {
         <TextInput
           placeholder="Confirmar senha"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           secureTextEntry
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
@@ -156,6 +193,7 @@ export default function Cadastro() {
           placeholder="CEP"
           style={styles.input}
           keyboardType="numeric"
+          placeholderTextColor={"#d3d3d3"}
           value={cep}
           onChangeText={(text) => {
             setCep(text);
@@ -166,6 +204,7 @@ export default function Cadastro() {
         <TextInput
           placeholder="Rua"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           value={rua}
           onChangeText={setRua}
         />
@@ -173,6 +212,7 @@ export default function Cadastro() {
         <TextInput
           placeholder="Número (opcional)"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           keyboardType="numeric"
           value={numero}
           onChangeText={setNumero}
@@ -181,6 +221,7 @@ export default function Cadastro() {
         <TextInput
           placeholder="Cidade"
           style={styles.input}
+          placeholderTextColor={"#d3d3d3"}
           value={cidade}
           onChangeText={setCidade}
         />
@@ -189,6 +230,7 @@ export default function Cadastro() {
           placeholder="Estado (UF)"
           style={styles.input}
           value={estado}
+          placeholderTextColor={"#d3d3d3"}
           onChangeText={setEstado}
           autoCapitalize="characters"
           maxLength={2}
@@ -198,6 +240,7 @@ export default function Cadastro() {
           <TextInput
             placeholder="Quadra"
             style={[styles.input, styles.half]}
+            placeholderTextColor={"#d3d3d3"}
             value={quadra}
             onChangeText={setQuadra}
           />
@@ -206,6 +249,7 @@ export default function Cadastro() {
             placeholder="Lote"
             style={[styles.input, styles.half]}
             value={lote}
+            placeholderTextColor={"#d3d3d3"}
             onChangeText={setLote}
           />
         </View>
