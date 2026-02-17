@@ -15,7 +15,7 @@ export default function Login() {
       {/* HEADER */}
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo.png')}
+          source={require('../../assets/images/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -60,7 +60,7 @@ export default function Login() {
           {/* Google */}
           <TouchableOpacity style={styles.socialButton}>
             <Image
-              source={require('../assets/images/google.png')}
+              source={require('../../assets/images/google.png')}
               style={styles.socialIcon}
             />
             <Text style={styles.socialText}>Google</Text>
@@ -69,7 +69,7 @@ export default function Login() {
           {/* gov.br (somente logo) */}
           <TouchableOpacity style={styles.socialButton}>
             <Image
-              source={require('../assets/images/govbr.png')}
+              source={require('../../assets/images/govbr.png')}
               style={styles.govIcon}
               resizeMode="contain"
             />
