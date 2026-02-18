@@ -6,8 +6,25 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const { isAuthenticated, isLoading } = useAuth();
+const router = useRouter();
+
+useEffect(() => {
+  if (isLoading) return;
+
+  if (!isAuthenticated) {
+    router.replace("/(auth)/login");
+  }
+}, [isAuthenticated, isLoading]);
+
 
   return (
     <Tabs

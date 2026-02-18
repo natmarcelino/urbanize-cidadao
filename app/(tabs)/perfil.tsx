@@ -1,21 +1,23 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { logout } from "../services/auth.service";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
 
 export default function Perfil() {
   const router = useRouter();
 
+  const { logout } = useAuth();
+
   async function handleLogout() {
     await logout();
-    router.replace("/(auth)/login");
   }
 
   return (
@@ -42,31 +44,16 @@ export default function Perfil() {
 
       {/* LISTA DE OPÇÕES */}
       <View style={styles.card}>
-        <MenuItem
-          icon="create-outline"
-          label="Editar dados"
-        />
-        <MenuItem
-          icon="location-outline"
-          label="Endereços salvos"
-        />
-        <MenuItem
-          icon="notifications-outline"
-          label="Notificações"
-        />
+        <MenuItem icon="create-outline" label="Editar dados" />
+        <MenuItem icon="location-outline" label="Endereços salvos" />
+        <MenuItem icon="notifications-outline" label="Notificações" />
         <MenuItem
           icon="color-palette-outline"
           label="Tema"
           rightText="Claro / Escuro"
         />
-        <MenuItem
-          icon="help-circle-outline"
-          label="Ajuda"
-        />
-        <MenuItem
-          icon="document-text-outline"
-          label="Termos de uso"
-        />
+        <MenuItem icon="help-circle-outline" label="Ajuda" />
+        <MenuItem icon="document-text-outline" label="Termos de uso" />
       </View>
 
       {/* BOTÃO SAIR */}
@@ -95,9 +82,7 @@ function MenuItem({
       </View>
 
       <View style={styles.menuRight}>
-        {rightText && (
-          <Text style={styles.menuRightText}>{rightText}</Text>
-        )}
+        {rightText && <Text style={styles.menuRightText}>{rightText}</Text>}
         <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
       </View>
     </TouchableOpacity>
