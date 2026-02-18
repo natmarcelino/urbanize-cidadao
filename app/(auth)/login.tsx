@@ -6,9 +6,32 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { router } from 'expo-router';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { login } from '../services/auth.service';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [erro, setErro] = useState<null | string>(null);
+
+  const router = useRouter();
+
+  async function handleLogin() {
+    try {
+
+      const data = await login(email, password);
+      await AsyncStorage.setItem("token", data.user.token);
+      router.replace("/(tabs)/home");
+
+
+    } catch (error) {
+        setErro("Erro ao conectar com servidor");
+    }
+  }
+
   return (
     <View style={styles.container}>
 
@@ -32,6 +55,7 @@ export default function Login() {
           style={styles.input}
           keyboardType="email-address"
           autoCapitalize="none"
+          onChangeText={setEmail}
         />
 
         <TextInput
@@ -39,12 +63,13 @@ export default function Login() {
           placeholderTextColor="#9CA3AF"
           style={styles.input}
           secureTextEntry
+          onChangeText={setPassword}
         />
 
         {/* Botão Entrar */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.replace('/home')}
+          onPress={handleLogin}
         >
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
