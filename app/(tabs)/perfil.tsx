@@ -6,28 +6,30 @@ import {
   TouchableOpacity,
   Image,
   Alert,
-} from 'react-native';
-import { router } from 'expo-router';
-import { useState } from 'react';
-import * as ImagePicker from 'expo-image-picker';
+} from "react-native";
+import { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
+import { useAuth } from "@/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function Perfil() {
+  const router = useRouter();
 
+  const { logout } = useAuth();
+
+  async function handleLogout() {
+    await logout();
+  }
   // 🔹 Estado da imagem
-  const [avatar, setAvatar] = useState(
-    'https://i.pravatar.cc/150?img=47'
-  );
+  const [avatar, setAvatar] = useState("https://i.pravatar.cc/150?img=47");
 
   // 🔹 Função para selecionar imagem
   async function selecionarImagem() {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      Alert.alert(
-        'Permissão necessária',
-        'Precisamos acessar sua galeria.'
-      );
+      Alert.alert("Permissão necessária", "Precisamos acessar sua galeria.");
       return;
     }
 
@@ -45,232 +47,160 @@ export default function Perfil() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      
       {/* HEADER */}
       <View style={styles.header}>
-
-        <TouchableOpacity onPress={selecionarImagem}>
-          <Image
-            source={{ uri: avatar }}
-            style={styles.avatar}
-          />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
-
-        <Text style={styles.name}>Nathalia Marcelino</Text>
-        <Text style={styles.email}>nathalia@email.com</Text>
-
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>Usuário verificado</Text>
-        </View>
+        <Text style={styles.title}>Perfil</Text>
+        <View style={{ width: 24 }} />
       </View>
 
-      {/* ESTATÍSTICAS */}
-      <View style={styles.statsContainer}>
-        <StatCard label="Solicitações" value="12" />
-        <StatCard label="Resolvidas" value="8" />
-        <StatCard label="Em andamento" value="2" />
-      </View>
-
-      {/* INFORMAÇÕES */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Informações pessoais</Text>
-
-        <InfoItem label="Telefone" value="(62) 99999-9999" />
-        <InfoItem label="Endereço" value="Goiânia - GO" />
-        <InfoItem label="CPF" value="***.***.***-00" />
-      </View>
-
-      {/* CONFIGURAÇÕES */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Configurações</Text>
-
-        <MenuItem
-          title="Editar perfil"
-          onPress={() => router.push('/editar-perfil')}
-        />
-
-        <MenuItem
-          title="Alterar senha"
-          onPress={() => router.push('/alterar-senha')}
-        />
-
-        <MenuItem
-          title="Notificações"
-          onPress={() => alert('Tela de notificações em breve')}
-        />
-
-        <MenuItem
-          title="Sair da conta"
-          danger
-          onPress={() => {
-            alert('Usuário deslogado');
-            router.replace('/login');
+      {/* FOTO + NOME */}
+      <View style={styles.profileSection}>
+        <Image
+          source={{
+            uri: avatar,
           }}
+          style={styles.avatar}
         />
+        <Text style={styles.name}>Nathalia Gomes</Text>
       </View>
 
+      {/* LISTA DE OPÇÕES */}
+      <View style={styles.card}>
+        <MenuItem icon="create-outline" label="Editar dados" />
+        <MenuItem icon="location-outline" label="Endereços salvos" />
+        <MenuItem icon="notifications-outline" label="Notificações" />
+        <MenuItem
+          icon="color-palette-outline"
+          label="Tema"
+          rightText="Claro / Escuro"
+        />
+        <MenuItem icon="help-circle-outline" label="Ajuda" />
+        <MenuItem icon="document-text-outline" label="Termos de uso" />
+      </View>
+
+      {/* BOTÃO SAIR */}
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Sair da conta</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
-/* COMPONENTES AUXILIARES */
-
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.infoItem}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
-    </View>
-  );
-}
-
+/* COMPONENTE ITEM */
 function MenuItem({
-  title,
-  danger,
-  onPress,
+  icon,
+  label,
+  rightText,
 }: {
-  title: string;
-  danger?: boolean;
-  onPress: () => void;
+  icon: any;
+  label: string;
+  rightText?: string;
 }) {
   return (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <Text
-        style={[
-          styles.menuText,
-          danger && { color: '#DC2626' },
-        ]}
-      >
-        {title}
-      </Text>
+    <TouchableOpacity style={styles.menuItem}>
+      <View style={styles.menuLeft}>
+        <Ionicons name={icon} size={20} color="#6B7280" />
+        <Text style={styles.menuLabel}>{label}</Text>
+      </View>
+
+      <View style={styles.menuRight}>
+        {rightText && <Text style={styles.menuRightText}>{rightText}</Text>}
+        <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+      </View>
     </TouchableOpacity>
   );
 }
 
-/* STYLES */
-
+/* ESTILOS */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F6F8',
+    backgroundColor: "#F4F6F8",
     paddingHorizontal: 20,
+    paddingTop: 50,
   },
 
   header: {
-    alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 25,
+  },
+
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+
+  profileSection: {
+    alignItems: "center",
+    marginBottom: 25,
   },
 
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 110,
+    height: 110,
+    borderRadius: 60,
     marginBottom: 12,
   },
 
   name: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 18,
+    fontWeight: "600",
   },
 
-  email: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-
-  badge: {
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-    marginTop: 8,
-  },
-
-  badgeText: {
-    fontSize: 12,
-    color: '#166534',
-    fontWeight: '600',
-  },
-
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 8,
     marginBottom: 25,
   },
 
-  statCard: {
-    backgroundColor: '#FFFFFF',
-    width: '31%',
-    padding: 14,
-    borderRadius: 16,
-    alignItems: 'center',
-    elevation: 3,
-  },
-
-  statValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#16A34A',
-  },
-
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-
-  section: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 20,
-    elevation: 3,
-  },
-
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    marginBottom: 14,
-    color: '#111827',
-  },
-
-  infoItem: {
-    marginBottom: 12,
-  },
-
-  infoLabel: {
-    fontSize: 12,
-    color: '#9CA3AF',
-  },
-
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-
   menuItem: {
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
-  menuText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
+  menuLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  menuLabel: {
+    fontSize: 15,
+    color: "#374151",
+    fontWeight: "500",
+  },
+
+  menuRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  menuRightText: {
+    fontSize: 13,
+    color: "#6B7280",
+  },
+
+  logoutButton: {
+    backgroundColor: "#E57373",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 40,
+  },
+
+  logoutText: {
+    color: "#FFF",
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

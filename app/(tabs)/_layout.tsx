@@ -1,15 +1,32 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { View, StyleSheet } from 'react-native';
+import { Tabs } from "expo-router";
+import React from "react";
+
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
+import { View, StyleSheet } from "react-native";
 
 export default function TabsLayout() {
+
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace("/(auth)/login");
+    }
+  }, [isAuthenticated, isLoading]);
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#16A34A',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: "#16A34A",
+        tabBarInactiveTintColor: "#94A3B8",
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.label,
       }}
@@ -18,7 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: "Home",
           tabBarIcon: ({ color }) => (
             <Ionicons name="home-outline" size={22} color={color} />
           ),
@@ -29,7 +46,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="nova-solicitacao"
         options={{
-          title: '',
+          title: "",
           tabBarIcon: () => (
             <View style={styles.centerButton}>
               <Ionicons name="add" size={28} color="#FFFFFF" />
@@ -42,7 +59,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="perfil"
         options={{
-          title: 'Perfil',
+          title: "Perfil",
           tabBarIcon: ({ color }) => (
             <Ionicons name="person-outline" size={22} color={color} />
           ),
@@ -59,12 +76,12 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     borderTopWidth: 0,
     elevation: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
 
   label: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: -2,
   },
 
@@ -72,13 +89,13 @@ const styles = StyleSheet.create({
     width: 62,
     height: 62,
     borderRadius: 31,
-    backgroundColor: '#16A34A',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#16A34A",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 25,
 
     // sombra elegante
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,

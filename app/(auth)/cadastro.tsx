@@ -130,7 +130,7 @@ export default function Cadastro() {
       {/* HEADER */}
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo.png')}
+          source={require('../../assets/images/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
