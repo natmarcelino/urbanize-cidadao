@@ -11,8 +11,6 @@ import { router } from 'expo-router';
 export default function Login() {
   return (
     <View style={styles.container}>
-
-      {/* HEADER */}
       <View style={styles.header}>
         <Image
           source={require('../assets/images/logo.png')}
@@ -22,10 +20,7 @@ export default function Login() {
         <Text style={styles.subtitle}>Acesso do cidadão</Text>
       </View>
 
-      {/* CARD */}
       <View style={styles.card}>
-
-        {/* Inputs */}
         <TextInput
           placeholder="E-mail"
           placeholderTextColor="#9CA3AF"
@@ -41,7 +36,7 @@ export default function Login() {
           secureTextEntry
         />
 
-        {/* Botão Entrar */}
+        {/* ✅ CORRETO */}
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.replace('/home')}
@@ -49,15 +44,11 @@ export default function Login() {
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
 
-        {/* Divisor */}
         <Text style={styles.dividerText}>
           Entrar com conta institucional
         </Text>
 
-        {/* Login institucional */}
         <View style={styles.socialContainer}>
-
-          {/* Google */}
           <TouchableOpacity style={styles.socialButton}>
             <Image
               source={require('../assets/images/google.png')}
@@ -66,7 +57,6 @@ export default function Login() {
             <Text style={styles.socialText}>Google</Text>
           </TouchableOpacity>
 
-          {/* gov.br (somente logo) */}
           <TouchableOpacity style={styles.socialButton}>
             <Image
               source={require('../assets/images/govbr.png')}
@@ -74,10 +64,8 @@ export default function Login() {
               resizeMode="contain"
             />
           </TouchableOpacity>
-
         </View>
 
-        {/* Links */}
         <View style={styles.links}>
           <TouchableOpacity onPress={() => router.push('/recuperar-senha')}>
             <Text style={styles.link}>Esqueci minha senha</Text>
@@ -87,9 +75,7 @@ export default function Login() {
             <Text style={styles.linkPrimary}>Primeiro acesso</Text>
           </TouchableOpacity>
         </View>
-
       </View>
-
     </View>
   );
 }

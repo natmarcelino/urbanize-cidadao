@@ -4,388 +4,212 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import { router } from 'expo-router';
 import MapView, { Marker } from 'react-native-maps';
 
-type Status = 'atendimento' | 'resolvida' | 'cancelada' | 'aberta';
-
-type Solicitacao = {
-  id: number;
-  tipo: string;
-  endereco: string;
-  status: Status;
-  data: string;
-  latitude: number;
-  longitude: number;
-};
-
 export default function Home() {
-
-  const solicitacoes: Solicitacao[] = [
-    {
-      id: 1,
-      tipo: 'Iluminação pública',
-      endereco: 'Jardim Nova Era',
-      status: 'atendimento',
-      data: '22/04/2024',
-      latitude: -16.6869,
-      longitude: -49.2648,
-    },
-    {
-      id: 2,
-      tipo: 'Coleta de lixo',
-      endereco: 'Rua das Acácias',
-      status: 'resolvida',
-      data: '21/04/2024',
-      latitude: -16.69,
-      longitude: -49.27,
-    },
-    {
-      id: 3,
-      tipo: 'Buraco na via',
-      endereco: 'Av. das Árvores',
-      status: 'cancelada',
-      data: '18/04/2024',
-      latitude: -16.68,
-      longitude: -49.26,
-    },
-    {
-      id: 4,
-      tipo: 'Lote vago',
-      endereco: 'Setor Central',
-      status: 'aberta',
-      data: '24/04/2024',
-      latitude: -16.67,
-      longitude: -49.25,
-    },
+  const solicitacoes = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+    { id: 4 },
   ];
 
-  const abertas = solicitacoes.filter(s => s.status === 'aberta').length;
-  const atendimento = solicitacoes.filter(s => s.status === 'atendimento').length;
-  const resolvidas = solicitacoes.filter(s => s.status === 'resolvida').length;
-  const canceladas = solicitacoes.filter(s => s.status === 'cancelada').length;
-
-  const ultimaAtualizacao = solicitacoes[0];
-
-  function getPinColor(status: Status) {
-    switch (status) {
-      case 'resolvida':
-        return 'green';
-      case 'cancelada':
-        return 'red';
-      case 'atendimento':
-        return 'orange';
-      default:
-        return '#2563EB';
-    }
-  }
-
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.logo}>Urbanize</Text>
-            <Text style={styles.greeting}>Olá, Nathalia 👋</Text>
-            <Text style={styles.subtitle}>
-              Veja o resumo das suas solicitações
-            </Text>
+        {/* HERO */}
+        <View style={styles.hero}>
+          <Text style={styles.logo}>URBANIZE</Text>
+          <Text style={styles.greeting}>Olá, Nathalia 👋</Text>
+          <Text style={styles.subtitle}>
+            Plataforma inteligente de monitoramento urbano
+          </Text>
+        </View>
+
+        {/* INDICADORES SOBREPOSTOS */}
+        <View style={styles.overlayCard}>
+
+          <View style={styles.indicatorsRow}>
+            <Indicator number="01" label="Abertas" color="#16A34A" />
+            <Indicator number="01" label="Em andamento" color="#F59E0B" />
           </View>
 
-          <TouchableOpacity style={styles.notification}>
-            <Text style={{ fontSize: 18 }}>🔔</Text>
-          </TouchableOpacity>
+          <View style={styles.indicatorsRow}>
+            <Indicator number="01" label="Resolvidas" color="#3B82F6" />
+            <Indicator number="01" label="Canceladas" color="#EF4444" />
+          </View>
+
         </View>
 
-        {/* MÉTRICAS CLICÁVEIS */}
-        <View style={styles.grid}>
-          <MetricCard
-            title="Abertas"
-            value={abertas}
-            color="#16A34A"
-            onPress={() => router.push('/minhas-solicitacoes')}
-          />
-          <MetricCard
-            title="Em atendimento"
-            value={atendimento}
-            color="#D97706"
-            onPress={() => router.push('/minhas-solicitacoes')}
-          />
-          <MetricCard
-            title="Resolvidas"
-            value={resolvidas}
-            color="#2563EB"
-            onPress={() => router.push('/minhas-solicitacoes')}
-          />
-          <MetricCard
-            title="Canceladas"
-            value={canceladas}
-            color="#DC2626"
-            onPress={() => router.push('/minhas-solicitacoes')}
-          />
-        </View>
+        {/* BOTÃO AGORA ACIMA DO MAPA */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => router.push('/minhas-solicitacoes')}
+        >
+          <Text style={styles.primaryButtonText}>
+            Minhas Solicitações
+          </Text>
+        </TouchableOpacity>
 
         {/* MAPA */}
-        <View style={styles.mapCard}>
+        <View style={styles.mapSection}>
+          <Text style={styles.sectionTitle}>
+            Monitoramento geográfico
+          </Text>
+
           <MapView
             style={styles.map}
             initialRegion={{
               latitude: -16.6869,
               longitude: -49.2648,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
+              latitudeDelta: 0.03,
+              longitudeDelta: 0.03,
             }}
           >
             {solicitacoes.map(item => (
               <Marker
                 key={item.id}
                 coordinate={{
-                  latitude: item.latitude,
-                  longitude: item.longitude,
+                  latitude: -16.6869 + item.id * 0.002,
+                  longitude: -49.2648 + item.id * 0.002,
                 }}
-                title={item.tipo}
-                description={item.endereco}
-                pinColor={getPinColor(item.status)}
               />
             ))}
           </MapView>
-
-          <TouchableOpacity
-            style={styles.mapButton}
-            onPress={() => router.push('/explore')}
-          >
-            <Text style={styles.mapButtonText}>
-              Ver mapa completo
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* BOTÃO PRINCIPAL DE ACESSO */}
-        <TouchableOpacity
-          style={styles.minhasButton}
-          onPress={() => router.push('/minhas-solicitacoes')}
-        >
-          <Text style={styles.minhasButtonText}>
-            📋 Ver minhas solicitações
-          </Text>
-        </TouchableOpacity>
-
-        {/* ÚLTIMA ATUALIZAÇÃO */}
-        <View style={styles.updatesCard}>
-          <View style={styles.updateHeader}>
-            <Text style={styles.sectionTitle}>Última atualização</Text>
-            <TouchableOpacity
-              onPress={() => router.push('/minhas-solicitacoes')}
-            >
-              <Text style={styles.link}>Ver todas</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={styles.updateItem}
-            onPress={() =>
-              router.push('/detalhe-solicitacao')
-            }
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.updateTitle}>
-                {ultimaAtualizacao.tipo}
-              </Text>
-              <Text style={styles.updateSubtitle}>
-                {ultimaAtualizacao.endereco}
-              </Text>
-            </View>
-
-            <Text style={styles.updateDate}>
-              {ultimaAtualizacao.data}
-            </Text>
-          </TouchableOpacity>
         </View>
 
       </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function Indicator({
+  number,
+  label,
+  color,
+}: {
+  number: string;
+  label: string;
+  color: string;
+}) {
+  return (
+    <View style={styles.indicator}>
+      <Text style={[styles.indicatorNumber, { color }]}>
+        {number}
+      </Text>
+      <Text style={styles.indicatorLabel}>{label}</Text>
     </View>
   );
 }
 
-function MetricCard({
-  title,
-  value,
-  color,
-  onPress,
-}: {
-  title: string;
-  value: number;
-  color: string;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity style={styles.metricCard} onPress={onPress}>
-      <Text style={[styles.metricValue, { color }]}>
-        {value}
-      </Text>
-      <Text style={styles.metricTitle}>{title}</Text>
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    backgroundColor: '#F4F6F8',
-    padding: 20,
+    backgroundColor: '#F2F5F7',
   },
 
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
+  hero: {
+    backgroundColor: '#15803D',
+    paddingTop: 70,
+    paddingBottom: 100,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
 
   logo: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#16A34A',
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 1.5,
   },
 
   greeting: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#111827',
-    marginTop: 4,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 10,
   },
 
   subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 2,
+    fontSize: 13,
+    color: '#DCFCE7',
+    marginTop: 6,
   },
 
-  notification: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  overlayCard: {
     backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
+    marginHorizontal: 20,
+    borderRadius: 24,
+    padding: 20,
+    marginTop: -70,
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 18,
+    elevation: 6,
   },
 
-  grid: {
+  indicatorsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-
-  metricCard: {
-    width: '48%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 18,
     marginBottom: 14,
-    elevation: 4,
   },
 
-  metricValue: {
-    fontSize: 28,
+  indicator: {
+    width: '48%',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+
+  indicatorNumber: {
+    fontSize: 24,
     fontWeight: '800',
   },
 
-  metricTitle: {
-    fontSize: 14,
-    color: '#6B7280',
+  indicatorLabel: {
+    fontSize: 11,
+    color: '#64748B',
     marginTop: 4,
+    fontWeight: '500',
   },
 
-  mapCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    elevation: 4,
-    marginBottom: 20,
-    overflow: 'hidden',
-  },
-
-  map: {
-    width: '100%',
-    height: 180,
-    borderRadius: 16,
-    marginBottom: 12,
-  },
-
-  mapButton: {
-    backgroundColor: '#16A34A',
-    paddingVertical: 12,
-    borderRadius: 999,
+  primaryButton: {
+    marginHorizontal: 20,
+    marginTop: 25,
+    backgroundColor: '#0F172A',
+    paddingVertical: 18,
+    borderRadius: 24,
     alignItems: 'center',
   },
 
-  mapButtonText: {
+  primaryButtonText: {
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '800',
+    fontSize: 15,
+    letterSpacing: 0.5,
   },
 
-  minhasButton: {
-    backgroundColor: '#111827',
-    paddingVertical: 14,
-    borderRadius: 18,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-
-  minhasButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-
-  updatesCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    elevation: 4,
-    marginBottom: 30,
-  },
-
-  updateHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
+  mapSection: {
+    marginTop: 30,
+    paddingHorizontal: 20,
+    marginBottom: 40,
   },
 
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    color: '#111827',
+    color: '#334155',
+    marginBottom: 10,
   },
 
-  link: {
-    color: '#2563EB',
-    fontWeight: '600',
-  },
-
-  updateItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  updateTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
-  },
-
-  updateSubtitle: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 2,
-  },
-
-  updateDate: {
-    fontSize: 12,
-    color: '#9CA3AF',
+  map: {
+    height: 220,
+    borderRadius: 24,
   },
 });

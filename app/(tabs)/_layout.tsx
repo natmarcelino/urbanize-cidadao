@@ -9,8 +9,9 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: '#16A34A',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.label,
       }}
     >
       {/* HOME */}
@@ -18,13 +19,13 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="home-outline" size={22} color={color} />
           ),
         }}
       />
 
-      {/* NOVA SOLICITAÇÃO (BOTÃO CENTRAL) */}
+      {/* BOTÃO CENTRAL */}
       <Tabs.Screen
         name="nova-solicitacao"
         options={{
@@ -42,8 +43,8 @@ export default function TabsLayout() {
         name="perfil"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person-outline" size={22} color={color} />
           ),
         }}
       />
@@ -53,20 +54,34 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 70,
+    height: 75,
     paddingBottom: 8,
+    paddingTop: 6,
     borderTopWidth: 0,
     elevation: 10,
+    backgroundColor: '#FFFFFF',
+  },
+
+  label: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: -2,
   },
 
   centerButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     backgroundColor: '#16A34A',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 25, // faz ele subir
-    elevation: 8,
+    marginBottom: 25,
+
+    // sombra elegante
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 12,
   },
 });

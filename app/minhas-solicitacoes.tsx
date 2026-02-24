@@ -56,7 +56,7 @@ export default function MinhasSolicitacoes() {
 
   function abrirDetalhe(item: Solicitacao) {
     router.push({
-      pathname: '/(tabs)/detalhe-solicitacao',
+      pathname: '/detalhe-solicitacao',
       params: {
         tipo: item.tipo,
         endereco: item.endereco,
@@ -66,55 +66,23 @@ export default function MinhasSolicitacoes() {
     });
   }
 
-  function renderFiltro(label: string, value: StatusFiltro) {
-    const ativo = filtro === value;
-
-    return (
-      <TouchableOpacity
-        style={[styles.filterButton, ativo && styles.filterButtonAtivo]}
-        onPress={() => setFiltro(value)}
-      >
-        <Text style={[styles.filterText, ativo && styles.filterTextAtivo]}>
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
-  }
-
-  function renderStatusBadge(status: StatusFiltro) {
-    if (status === 'atendimento') {
-      return (
-        <View style={[styles.badge, styles.badgeAtendimento]}>
-          <Text style={[styles.badgeText, styles.textAtendimento]}>
-            Em atendimento
-          </Text>
-        </View>
-      );
-    }
-
-    if (status === 'resolvida') {
-      return (
-        <View style={[styles.badge, styles.badgeResolvida]}>
-          <Text style={[styles.badgeText, styles.textResolvida]}>
-            Resolvida
-          </Text>
-        </View>
-      );
-    }
-
-    return (
-      <View style={[styles.badge, styles.badgeCancelada]}>
-        <Text style={[styles.badgeText, styles.textCancelada]}>
-          Cancelada
-        </Text>
-      </View>
-    );
-  }
-
-  function renderData(status: StatusFiltro, data: string) {
+  function formatarData(status: StatusFiltro, data: string) {
     if (status === 'atendimento') return `Atualizado em ${data}`;
     if (status === 'resolvida') return `Resolvido em ${data}`;
     return `Cancelado em ${data}`;
+  }
+
+  function corStatus(status: StatusFiltro) {
+    switch (status) {
+      case 'atendimento':
+        return '#F59E0B';
+      case 'resolvida':
+        return '#16A34A';
+      case 'cancelada':
+        return '#DC2626';
+      default:
+        return '#16A34A';
+    }
   }
 
   return (
@@ -124,16 +92,44 @@ export default function MinhasSolicitacoes() {
       <View style={styles.header}>
         <Text style={styles.title}>Minhas solicitações</Text>
         <Text style={styles.subtitle}>
-          Acompanhe o andamento das solicitações
+          Acompanhe o andamento das suas ocorrências
         </Text>
       </View>
 
       {/* FILTROS */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {renderFiltro('Todas', 'todas')}
-        {renderFiltro('Em atendimento', 'atendimento')}
-        {renderFiltro('Resolvidas', 'resolvida')}
-        {renderFiltro('Canceladas', 'cancelada')}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filtersContainer}
+      >
+        {['todas','atendimento','resolvida','cancelada'].map((item) => {
+          const ativo = filtro === item;
+          const label =
+            item === 'todas'
+              ? 'Todas'
+              : item === 'atendimento'
+              ? 'Em atendimento'
+              : item === 'resolvida'
+              ? 'Resolvidas'
+              : 'Canceladas';
+
+          return (
+            <TouchableOpacity
+              key={item}
+              style={[styles.filterChip, ativo && styles.filterChipActive]}
+              onPress={() => setFiltro(item as StatusFiltro)}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  ativo && styles.filterTextActive,
+                ]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
       {/* LISTA */}
@@ -141,29 +137,39 @@ export default function MinhasSolicitacoes() {
         <TouchableOpacity
           key={item.id}
           style={styles.card}
+          activeOpacity={0.92}
           onPress={() => abrirDetalhe(item)}
         >
-          <View style={styles.cardTop}>
-            <View style={styles.iconContainer}>
+          <View
+            style={[
+              styles.statusBar,
+              { backgroundColor: corStatus(item.status) },
+            ]}
+          />
+
+          <View style={styles.cardContent}>
+            <View style={styles.iconCircle}>
               <Text style={styles.icon}>{item.icon}</Text>
             </View>
 
             <View style={{ flex: 1 }}>
               <Text style={styles.tipo}>{item.tipo}</Text>
               <Text style={styles.endereco}>{item.endereco}</Text>
+              <Text style={styles.data}>
+                {formatarData(item.status, item.data)}
+              </Text>
             </View>
 
-            {renderStatusBadge(item.status)}
+            <Text style={styles.chevron}>›</Text>
           </View>
-
-          <Text style={styles.data}>
-            {renderData(item.status, item.data)}
-          </Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
   );
 }
+
+/* ================== STYLES ================== */
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -172,31 +178,35 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginTop: 20,
-    marginBottom: 16,
+    marginTop: 25,
+    marginBottom: 20,
   },
 
   title: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 24,
+    fontWeight: '800',
     color: '#111827',
   },
 
   subtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#6B7280',
-    marginTop: 4,
+    marginTop: 6,
   },
 
-  filterButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: '#E5E7EB',
+  filtersContainer: {
+    marginBottom: 15,
+  },
+
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: 999,
-    marginRight: 8,
+    backgroundColor: '#E5E7EB',
+    marginRight: 10,
   },
 
-  filterButtonAtivo: {
+  filterChipActive: {
     backgroundColor: '#16A34A',
   },
 
@@ -206,42 +216,52 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
 
-  filterTextAtivo: {
+  filterTextActive: {
     color: '#FFFFFF',
   },
 
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 18,
-    marginTop: 14,
+    marginBottom: 18,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+    overflow: 'hidden',
   },
 
-  cardTop: {
+  statusBar: {
+    width: 6,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+  },
+
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 18,
   },
 
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+  iconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 14,
   },
 
   icon: {
-    fontSize: 18,
+    fontSize: 22,
   },
 
   tipo: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     color: '#111827',
   },
@@ -249,47 +269,18 @@ const styles = StyleSheet.create({
   endereco: {
     fontSize: 13,
     color: '#6B7280',
-    marginTop: 2,
+    marginTop: 3,
   },
 
   data: {
     fontSize: 12,
     color: '#9CA3AF',
-    marginTop: 10,
+    marginTop: 6,
   },
 
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-
-  badgeAtendimento: {
-    backgroundColor: '#FEF3C7',
-  },
-
-  textAtendimento: {
-    color: '#92400E',
-  },
-
-  badgeResolvida: {
-    backgroundColor: '#DCFCE7',
-  },
-
-  textResolvida: {
-    color: '#166534',
-  },
-
-  badgeCancelada: {
-    backgroundColor: '#FEE2E2',
-  },
-
-  textCancelada: {
-    color: '#991B1B',
+  chevron: {
+    fontSize: 22,
+    color: '#9CA3AF',
+    marginLeft: 10,
   },
 });
