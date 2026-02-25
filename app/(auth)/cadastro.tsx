@@ -1,32 +1,33 @@
+import { router } from "expo-router";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   Image,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-} from 'react-native';
-import { useState } from 'react';
-import { router } from 'expo-router';
+  View,
+} from "react-native";
+import { api } from "../../services/api";
 
 export default function Cadastro() {
   // ===== STATES =====
-  const [nome, setNome] = useState('');
-  const [cpf, setCpf] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const [cep, setCep] = useState('');
-  const [rua, setRua] = useState('');
-  const [numero, setNumero] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [estado, setEstado] = useState('');
-  const [quadra, setQuadra] = useState('');
-  const [lote, setLote] = useState('');
+  const [cep, setCep] = useState("");
+  const [rua, setRua] = useState("");
+  const [numero, setNumero] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+  const [quadra, setQuadra] = useState("");
+  const [lote, setLote] = useState("");
 
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useState("");
 
   // ===== FUNÇÕES =====
   function validarEmail(valor: string) {
@@ -34,91 +35,90 @@ export default function Cadastro() {
   }
 
   function validarCPF(valor: string) {
-    const cpfLimpo = valor.replace(/\D/g, '');
+    const cpfLimpo = valor.replace(/\D/g, "");
     return cpfLimpo.length === 11;
   }
 
   async function buscarCep(valor: string) {
-    const cepLimpo = valor.replace(/\D/g, '');
+    const cepLimpo = valor.replace(/\D/g, "");
     if (cepLimpo.length !== 8) return;
 
     try {
       const response = await fetch(
-        `https://viacep.com.br/ws/${cepLimpo}/json/`
+        `https://viacep.com.br/ws/${cepLimpo}/json/`,
       );
       const data = await response.json();
 
       if (data.erro) return;
 
-      setRua(data.logradouro || '');
-      setCidade(data.localidade || '');
-      setEstado(data.uf || '');
+      setRua(data.logradouro || "");
+      setCidade(data.localidade || "");
+      setEstado(data.uf || "");
     } catch {
-      setErro('Erro ao buscar o CEP.');
+      setErro("Erro ao buscar o CEP.");
     }
   }
 
-  function handleCadastro() {
+  async function handleCadastro() {
+    // 1. Validações iniciais (mantive as suas)
     if (!nome || !cpf || !email || !senha || !confirmarSenha) {
-      setErro('Preencha todos os campos obrigatórios.');
+      setErro("Preencha todos os campos obrigatórios.");
       return;
     }
 
     if (!validarCPF(cpf)) {
-      setErro('CPF inválido.');
+      setErro("CPF inválido.");
       return;
     }
 
     if (!validarEmail(email)) {
-      setErro('E-mail inválido.');
+      setErro("E-mail inválido.");
       return;
     }
 
     if (senha.length < 6) {
-      setErro('A senha deve ter no mínimo 6 caracteres.');
+      setErro("A senha deve ter no mínimo 6 caracteres.");
       return;
     }
 
     if (senha !== confirmarSenha) {
-      setErro('As senhas não coincidem.');
+      setErro("As senhas não coincidem.");
       return;
     }
 
-    setErro('');
-    alert('Cadastro validado com sucesso!');
-    // aqui depois entra o envio para o backend
+    try {
+      setErro("");
 
-    fetch("http://192.168.1.7:3000/user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: nome,
-        email: email,
-        cpf: cpf,
-        password: senha,
-        address: {
-          cep: cep,
-          street: rua,
-          number: numero,
-          city: cidade,
-          state: estado,
-          quadra: quadra,
-          lote: lote
-        }
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Sucesso:', data);
-    })
-    .catch(error => {
-      console.error('Erro:', error);
-    });
+      // 2. Chamada usando a SUA api customizada
+      // Note que passamos apenas o path "/user", o BASE_URL já está na api.ts
+      await api("/user", {
+        method: "POST",
+        body: JSON.stringify({
+          name: nome,
+          email: email,
+          cpf: cpf,
+          password: senha,
+          address: {
+            cep: cep,
+            street: rua,
+            number: numero,
+            city: cidade,
+            state: estado,
+            quadra: quadra,
+            lote: lote,
+          },
+        }),
+      });
 
-    router.back()
+      alert("Usuário cadastrado com sucesso!");
 
+      // 3. Só volta para o login se der tudo certo
+      router.back();
+    } catch (error: any) {
+      // Captura o erro que vem do throw da sua api.ts
+      setErro(error.message || "Erro ao realizar cadastro.");
+      console.error("Erro no cadastro:", error);
+    }
   }
 
   return (
@@ -126,11 +126,10 @@ export default function Cadastro() {
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
-
       {/* HEADER */}
       <View style={styles.header}>
         <Image
-          source={require('../../assets/images/logo.png')}
+          source={require("../../assets/images/logo.png")}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -139,7 +138,6 @@ export default function Cadastro() {
 
       {/* CARD */}
       <View style={styles.card}>
-
         <Text style={styles.sectionTitle}>Dados pessoais</Text>
 
         <TextInput
@@ -254,29 +252,28 @@ export default function Cadastro() {
           />
         </View>
 
-        {erro !== '' && <Text style={styles.errorText}>{erro}</Text>}
+        {erro !== "" && <Text style={styles.errorText}>{erro}</Text>}
 
         <TouchableOpacity style={styles.button} onPress={handleCadastro}>
           <Text style={styles.buttonText}>Criar conta</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push('/login')}>
+        <TouchableOpacity onPress={() => router.push("/login")}>
           <Text style={styles.backText}>Já tenho conta</Text>
         </TouchableOpacity>
-
       </View>
     </ScrollView>
   );
 }
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F4F6F8',
+    backgroundColor: "#F4F6F8",
     paddingHorizontal: 24,
     paddingVertical: 30,
   },
 
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
 
@@ -288,12 +285,12 @@ const styles = StyleSheet.create({
 
   subtitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: "600",
+    color: "#374151",
   },
 
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 18,
     padding: 20,
     elevation: 4,
@@ -301,59 +298,58 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#374151',
+    fontWeight: "700",
+    color: "#374151",
     marginTop: 10,
     marginBottom: 10,
   },
 
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingVertical: 14,
     paddingHorizontal: 14,
     borderRadius: 10,
     fontSize: 15,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: "#E5E7EB",
   },
 
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 
   half: {
-    width: '48%',
+    width: "48%",
   },
 
   errorText: {
-    color: '#DC2626',
+    color: "#DC2626",
     fontSize: 13,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 10,
   },
 
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     paddingVertical: 16,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 6,
     marginBottom: 14,
   },
 
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   backText: {
-    textAlign: 'center',
-    color: '#2563EB',
+    textAlign: "center",
+    color: "#2563EB",
     fontSize: 14,
-    fontWeight: '600',
-
+    fontWeight: "600",
   },
 });
