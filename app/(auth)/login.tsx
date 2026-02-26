@@ -11,7 +11,7 @@ import {
 import { login as loginApi } from "../../services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 
-export default function Login() {
+export default function Login() { 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [erro, setErro] = useState<null | string>(null);
@@ -24,7 +24,7 @@ export default function Login() {
     try {
         const data = await loginApi(email, password);
 
-        await login(data.accessToken, data.refreshToken);
+        await login(data.accessToken, data.refreshToken, data.user);
 
       } catch (error) {
         setErro("Erro ao conectar com servidor");

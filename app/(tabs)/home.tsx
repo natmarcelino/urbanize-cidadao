@@ -7,6 +7,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useAuth } from "@/context/AuthContext"; // Importe o seu hook
 import MapView, { Marker } from 'react-native-maps';
 
 export default function Home() {
@@ -17,6 +18,9 @@ export default function Home() {
     { id: 4 },
   ];
 
+  const { user } = useAuth(); // Pegue o user do contexto
+  
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -24,7 +28,7 @@ export default function Home() {
         {/* HERO */}
         <View style={styles.hero}>
           <Text style={styles.logo}>URBANIZE</Text>
-          <Text style={styles.greeting}>Olá, Nathalia 👋</Text>
+          <Text style={styles.greeting}>Olá, {user?.name || "Cidadão"} 👋</Text>
           <Text style={styles.subtitle}>
             Plataforma inteligente de monitoramento urbano
           </Text>

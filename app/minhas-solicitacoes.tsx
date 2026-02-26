@@ -56,7 +56,7 @@ export default function MinhasSolicitacoes() {
 
   function abrirDetalhe(item: Solicitacao) {
     router.push({
-      pathname: '/detalhe-solicitacao',
+      pathname: "",
       params: {
         tipo: item.tipo,
         endereco: item.endereco,

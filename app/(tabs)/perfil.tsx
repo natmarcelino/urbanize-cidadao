@@ -18,6 +18,8 @@ export default function Perfil() {
 
   const { logout } = useAuth();
 
+  const { user } = useAuth(); // Pegue o user do contexto
+
   async function handleLogout() {
     await logout();
   }
@@ -64,7 +66,7 @@ export default function Perfil() {
           }}
           style={styles.avatar}
         />
-        <Text style={styles.name}>Nathalia Gomes</Text>
+        <Text style={styles.name}>{user?.name}</Text>
       </View>
 
       {/* LISTA DE OPÇÕES */}
