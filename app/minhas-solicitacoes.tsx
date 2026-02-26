@@ -4,9 +4,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Animated,
 } from 'react-native';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 type StatusFiltro = 'todas' | 'atendimento' | 'resolvida' | 'cancelada';
 
@@ -86,89 +88,132 @@ export default function MinhasSolicitacoes() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
       
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Minhas solicitações</Text>
-        <Text style={styles.subtitle}>
+      {/* HEADER FIXO PREMIUM */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity
+            onPress={() => router.replace('/(tabs)/home')}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={20} color="#111827" />
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>
+            Minhas solicitações
+          </Text>
+
+          <View style={styles.counterBadge}>
+            <Text style={styles.counterText}>
+              {listaFiltrada.length}
+            </Text>
+          </View>
+        </View>
+
+        <Text style={styles.headerSubtitle}>
           Acompanhe o andamento das suas ocorrências
         </Text>
       </View>
 
-      {/* FILTROS */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersContainer}
-      >
-        {['todas','atendimento','resolvida','cancelada'].map((item) => {
-          const ativo = filtro === item;
-          const label =
-            item === 'todas'
-              ? 'Todas'
-              : item === 'atendimento'
-              ? 'Em atendimento'
-              : item === 'resolvida'
-              ? 'Resolvidas'
-              : 'Canceladas';
+      <ScrollView showsVerticalScrollIndicator={false}>
+
+        {/* FILTROS */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filtersContainer}
+        >
+          {['todas','atendimento','resolvida','cancelada'].map((item) => {
+            const ativo = filtro === item;
+            const label =
+              item === 'todas'
+                ? 'Todas'
+                : item === 'atendimento'
+                ? 'Em atendimento'
+                : item === 'resolvida'
+                ? 'Resolvidas'
+                : 'Canceladas';
+
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.filterChip, ativo && styles.filterChipActive]}
+                onPress={() => setFiltro(item as StatusFiltro)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    ativo && styles.filterTextActive,
+                  ]}
+                >
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* LISTA COM ANIMAÇÃO */}
+        {listaFiltrada.map(item => {
+          const scale = useRef(new Animated.Value(1)).current;
 
           return (
-            <TouchableOpacity
-              key={item}
-              style={[styles.filterChip, ativo && styles.filterChipActive]}
-              onPress={() => setFiltro(item as StatusFiltro)}
+            <Animated.View
+              key={item.id}
+              style={[
+                styles.card,
+                { transform: [{ scale }] },
+              ]}
             >
-              <Text
-                style={[
-                  styles.filterText,
-                  ativo && styles.filterTextActive,
-                ]}
+              <TouchableOpacity
+                activeOpacity={1}
+                onPressIn={() =>
+                  Animated.spring(scale, {
+                    toValue: 0.97,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onPressOut={() =>
+                  Animated.spring(scale, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onPress={() => abrirDetalhe(item)}
               >
-                {label}
-              </Text>
-            </TouchableOpacity>
+                <View
+                  style={[
+                    styles.statusBar,
+                    { backgroundColor: corStatus(item.status) },
+                  ]}
+                />
+
+                <View style={styles.cardContent}>
+                  <View style={styles.iconCircle}>
+                    <Text style={styles.icon}>{item.icon}</Text>
+                  </View>
+
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.tipo}>{item.tipo}</Text>
+                    <Text style={styles.endereco}>{item.endereco}</Text>
+                    <Text style={styles.data}>
+                      {formatarData(item.status, item.data)}
+                    </Text>
+                  </View>
+
+                  <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
           );
         })}
       </ScrollView>
-
-      {/* LISTA */}
-      {listaFiltrada.map(item => (
-        <TouchableOpacity
-          key={item.id}
-          style={styles.card}
-          activeOpacity={0.92}
-          onPress={() => abrirDetalhe(item)}
-        >
-          <View
-            style={[
-              styles.statusBar,
-              { backgroundColor: corStatus(item.status) },
-            ]}
-          />
-
-          <View style={styles.cardContent}>
-            <View style={styles.iconCircle}>
-              <Text style={styles.icon}>{item.icon}</Text>
-            </View>
-
-            <View style={{ flex: 1 }}>
-              <Text style={styles.tipo}>{item.tipo}</Text>
-              <Text style={styles.endereco}>{item.endereco}</Text>
-              <Text style={styles.data}>
-                {formatarData(item.status, item.data)}
-              </Text>
-            </View>
-
-            <Text style={styles.chevron}>›</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    </View>
   );
 }
 
-/* ================== STYLES ================== */
+/* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
   container: {
@@ -177,25 +222,53 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 
-  header: {
-    marginTop: 25,
+  headerWrapper: {
+    marginTop: 40,
     marginBottom: 20,
   },
 
-  title: {
-    fontSize: 24,
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  headerTitle: {
+    fontSize: 20,
     fontWeight: '800',
     color: '#111827',
   },
 
-  subtitle: {
-    fontSize: 14,
+  counterBadge: {
+    backgroundColor: '#16A34A',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+
+  counterText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+
+  headerSubtitle: {
+    fontSize: 13,
     color: '#6B7280',
-    marginTop: 6,
+    marginTop: 8,
   },
 
   filtersContainer: {
-    marginBottom: 15,
+    marginBottom: 20,
   },
 
   filterChip: {
@@ -224,10 +297,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     marginBottom: 18,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
     elevation: 4,
     overflow: 'hidden',
   },
@@ -276,11 +345,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#9CA3AF',
     marginTop: 6,
-  },
-
-  chevron: {
-    fontSize: 22,
-    color: '#9CA3AF',
-    marginLeft: 10,
   },
 });
