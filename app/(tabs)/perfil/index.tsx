@@ -12,6 +12,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { Modal } from "react-native";
 
 export default function Perfil() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function Perfil() {
   }
   // 🔹 Estado da imagem
   const [avatar, setAvatar] = useState("https://i.pravatar.cc/150?img=47");
+  const [showModal, setShowModal] = useState(false);
 
   // 🔹 Função para selecionar imagem
   async function selecionarImagem() {
@@ -84,9 +86,46 @@ export default function Perfil() {
       </View>
 
       {/* BOTÃO SAIR */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={() => setShowModal(true)}
+      >
         <Text style={styles.logoutText}>Sair da conta</Text>
       </TouchableOpacity>
+
+      <Modal
+        transparent
+        visible={showModal}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Sair da conta</Text>
+            <Text style={styles.modalText}>
+              Tem certeza que deseja sair?
+            </Text>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowModal(false)}
+              >
+                <Text style={styles.cancelText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={async () => {
+                  setShowModal(false);
+                  await logout();
+                }}
+              >
+                <Text style={styles.confirmText}>Sair</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -205,4 +244,57 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 15,
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.4)",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+modalContainer: {
+  width: "85%",
+  backgroundColor: "#FFF",
+  borderRadius: 16,
+  padding: 20,
+},
+
+modalTitle: {
+  fontSize: 18,
+  fontWeight: "700",
+  marginBottom: 10,
+},
+
+modalText: {
+  fontSize: 14,
+  color: "#6B7280",
+  marginBottom: 20,
+},
+
+modalButtons: {
+  flexDirection: "row",
+  justifyContent: "flex-end",
+  gap: 12,
+},
+
+cancelButton: {
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+},
+
+cancelText: {
+  color: "#6B7280",
+  fontWeight: "600",
+},
+
+confirmButton: {
+  backgroundColor: "#E57373",
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+  borderRadius: 8,
+},
+
+confirmText: {
+  color: "#FFF",
+  fontWeight: "700",
+},
 });

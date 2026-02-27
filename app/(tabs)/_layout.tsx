@@ -33,7 +33,7 @@ export default function TabsLayout() {
     >
       {/* HOME */}
       <Tabs.Screen
-        name="home"
+        name="home/index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -44,7 +44,7 @@ export default function TabsLayout() {
 
       {/* BOTÃO CENTRAL */}
       <Tabs.Screen
-        name="nova-solicitacao"
+        name="nova-solicitacao/index"
         options={{
           title: "",
           tabBarIcon: () => (
@@ -57,7 +57,7 @@ export default function TabsLayout() {
 
       {/* PERFIL */}
       <Tabs.Screen
-        name="perfil"
+        name="perfil/index"
         options={{
           title: "Perfil",
           tabBarIcon: ({ color }) => (

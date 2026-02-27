@@ -11,7 +11,7 @@ import {
 import { login as loginApi } from "../../services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 
-export default function Login() { 
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [erro, setErro] = useState<null | string>(null);
@@ -21,14 +21,29 @@ export default function Login() {
   const router = useRouter();
 
   async function handleLogin() {
+    setErro(null);
+
+    // 🔹 Validação campos vazios
+    if (!email.trim() || !password.trim()) {
+      setErro("Preencha todos os campos");
+      return;
+    }
+
+    // 🔹 Validação formato de e-mail
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setErro("Digite um e-mail válido");
+      return;
+    }
+
     try {
-        const data = await loginApi(email, password);
+      const data = await loginApi(email, password);
 
-        await login(data.accessToken, data.refreshToken, data.user);
-
-      } catch (error) {
-        setErro("Erro ao conectar com servidor");
-      }
+      await login(data.accessToken, data.refreshToken, data.user);
+    } catch (error: any) {
+        setErro("Email ou senha inválidos");
+    }
   }
 
   return (
@@ -66,6 +81,8 @@ export default function Login() {
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
+
+        {erro && <Text style={styles.errorText}>{erro}</Text>}
 
         {/* Divisor */}
         <Text style={styles.dividerText}>Entrar com conta institucional</Text>
@@ -120,6 +137,13 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginBottom: 6,
+  },
+
+  errorText: {
+    color: "#EF4444",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 12,
   },
 
   subtitle: {

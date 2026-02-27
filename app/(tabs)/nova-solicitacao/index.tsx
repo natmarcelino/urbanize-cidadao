@@ -116,7 +116,7 @@ export default function NovaSolicitacao() {
     setTimeout(() => {
       setLoading(false);
       alert('Solicitação enviada com sucesso!');
-      router.replace('/(tabs)/minhas-solicitacoes');
+      router.replace("");
     }, 1500);
   }
 
